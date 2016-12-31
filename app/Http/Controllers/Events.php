@@ -90,11 +90,7 @@ class Events extends Controller
         {
             return $category->name;
         }
-        else
-        {
             return "";
-        }
-        
     }
 
     /**
@@ -195,28 +191,29 @@ class Events extends Controller
         {
             $response = new Response();
             $photoMdl = new Photos;
-            $event->name = $request->input('name');
-            $category = $this->getCategory($request->input('categoryId'));
-            $event->category = $category ;
-            $event->categoryId = $request->input('categoryId');
-            $event->description = $request->input('description');
-            $event->duration = $request->input('duration');
-            $event->startDate = $request->input('startDate');
-            $event->time = $request->input('time');
-            $event->city = $request->input('location')['city'];
-            $event->country = $request->input('location')['country'];
-            $event->address = $request->input('location')['address'];
-            $photos = $request->input('photos');
+            $event->name = is_null($request->input('name')) ? $event->name : $request->input('name');
+            if(!is_null($request->input('categoryId')))
+            {
+                $category = $this->getCategory($request->input('categoryId'));
+                $event->category = $category ;
+            }
+            $event->categoryId = is_null($request->input('categoryId')) ? $event->categoryId : $request->categoryId('name');
+            $event->description = is_null($request->input('description')) ? $event->name : $request->input('description');
+            $event->duration = is_null($request->input('duration')) ? $event->name : $request->input('duration');
+            $event->startDate = is_null($request->input('startDate')) ? $event->name : $request->input('startDate');
+            $event->time = is_null($request->input('time')) ? $event->time : $request->input('time');
+            $event->city = is_null($request->input('city')) ? $event->city : $request->input('location')['city'];
+            $event->country = is_null($request->input('country')) ? $event->country : $request->input('location')['country'];
+            $event->address = is_null($request->input('address')) ? $event->address : $request->input('location')['address'];
+            $photos = is_null($request->input('photos')) ? $event->photos : $request->input('photos');
             $event->save();
             foreach($photos as $photo) {
                 $data = $photo['value'];
                 $data = base64_decode($data);
                 Storage::disk('s3')->put($event->id.$photo['name'].".png",$data);
-
                 $photoMdl->name = $photo['name'];
                 $photoMdl->eventId = $event->id;
                 $photoMdl->save();
-
                 $event->photos = $photos;
             }
             return $response->setStatusCode(200)->setContent($event);
