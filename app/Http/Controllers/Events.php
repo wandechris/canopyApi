@@ -185,12 +185,9 @@ class Events extends Controller
         $event = Event::find($id);
         if ($event != null)
         {
-             $response = new Response();
-        $event = new Event;
-        $photoMdl = new Photos;
-
-        if($request->has('name'))
-        {
+            $response = new Response();
+            $event = new Event;
+            $photoMdl = new Photos;
             $event->name = $request->input('name');
             $category = $this->getCategory($request->input('categoryId'));
             $event->category = $category ;
@@ -207,7 +204,7 @@ class Events extends Controller
             foreach($photos as $photo) {
                 $data = $photo['value'];
                 $data = base64_decode($data);
-                Storage::disk('local')->put($event->id.$photo['name'].".png",$data);
+                Storage::disk('s3')->put($event->id.$photo['name'].".png",$data);
 
                 $photoMdl->name = $photo['name'];
                 $photoMdl->eventId = $event->id;
@@ -216,10 +213,6 @@ class Events extends Controller
                 $event->photos = $photos;
             }
             return $response->setStatusCode(200)->setContent($event);
-        }else
-        {
-            return $response->setStatusCode(400);
-        }
         }
         return $response->setStatusCode(404);
     }
