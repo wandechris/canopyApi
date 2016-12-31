@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Event;
+use Storage;
 use App\Category;
+use App\Photos;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Response;
@@ -24,21 +26,31 @@ class Events extends Controller
         if($category != null)
         {
             $event = Event::where('categoryId', $category)->get();
+            $event = $this->getEventWithPhoto($event);
             return $event; 
         }
         if ($id == null) {
-            return Event::orderBy('id', 'asc')->get();
+            $event = Event::orderBy('id', 'asc')->get();
+            $event = $this->getEventWithPhoto($event);
+            return $event;
         } else {
             return $this->show($id);
         }
     }
 
-    // public function getCategorys($id)
-    // {
-    //     return Category::orderBy('id', 'asc')->get();
-    //     // return EventCategory::where('categoryId', $id)->get();
-    // }
-
+    public function getEventWithPhoto($events)
+    {
+        foreach($events as $event) 
+        {
+            $photos = Photos::where('eventId', $event->id)->get();
+            foreach($photos as $photo) {
+                $contents = Storage::get($event->id.$photo->name.'.png');
+                $photo->value = base64_encode($contents);
+            }
+            $event->photos = $photos;
+        }
+        return $events;
+    }
     public function createCategorys(Request $request)
     {
         $response = new Response();
@@ -49,7 +61,7 @@ class Events extends Controller
             $category->name = $request->input('name');
             $category->description = $request->input('description');
             $category->save();
-            return $response->setStatusCode(201);
+            return $response->setStatusCode(201)->setContent($category);
         }else
         {
             return $response->setStatusCode(400);
@@ -87,6 +99,7 @@ class Events extends Controller
     {
         $response = new Response();
         $event = new Event;
+        $photoMdl = new Photos;
 
         if($request->has('name'))
         {
@@ -101,8 +114,20 @@ class Events extends Controller
             $event->city = $request->input('location')['city'];
             $event->country = $request->input('location')['country'];
             $event->address = $request->input('location')['address'];
+            $photos = $request->input('photos');
             $event->save();
-            return $response->setStatusCode(201);
+            foreach($photos as $photo) {
+                $data = $photo['value'];
+                $data = base64_decode($data);
+                Storage::disk('local')->put($event->id.$photo['name'].".png",$data);
+
+                $photoMdl->name = $photo['name'];
+                $photoMdl->eventId = $event->id;
+                $photoMdl->save();
+
+                $event->photos = $photos;
+            }
+            return $response->setStatusCode(201)->setContent($event);
         }else
         {
             return $response->setStatusCode(400);
@@ -122,6 +147,12 @@ class Events extends Controller
         $event = Event::find($id);
         if ($event != null)
         {
+            $photos = Photos::where('eventId', $id)->get();
+            foreach($photos as $photo) {
+                $contents = Storage::get($id.$photo->name.'.png');
+                $photo->value = base64_encode($contents);
+            }
+            $event->photos = $photos;
             return $event;
         }
         else
@@ -155,15 +186,41 @@ class Events extends Controller
         $event = Event::find($id);
         if ($event != null)
         {
-            $event->title = $request->input('title');
+             $response = new Response();
+        $event = new Event;
+        $photoMdl = new Photos;
+
+        if($request->has('name'))
+        {
+            $event->name = $request->input('name');
+            $category = $this->getCategory($request->input('categoryId'));
+            $event->category = $category ;
+            $event->categoryId = $request->input('categoryId');
             $event->description = $request->input('description');
-            $event->city = $request->input('city');
-            $event->state = $request->input('state');
-            $event->country = $request->input('country');
-            $event->organiser = $request->input('organiser');
-            $event->url = $request->input('url');
+            $event->duration = $request->input('duration');
+            $event->startDate = $request->input('startDate');
+            $event->time = $request->input('time');
+            $event->city = $request->input('location')['city'];
+            $event->country = $request->input('location')['country'];
+            $event->address = $request->input('location')['address'];
+            $photos = $request->input('photos');
             $event->save();
-            return $response->setStatusCode(204);
+            foreach($photos as $photo) {
+                $data = $photo['value'];
+                $data = base64_decode($data);
+                Storage::disk('local')->put($event->id.$photo['name'].".png",$data);
+
+                $photoMdl->name = $photo['name'];
+                $photoMdl->eventId = $event->id;
+                $photoMdl->save();
+
+                $event->photos = $photos;
+            }
+            return $response->setStatusCode(200)->setContent($event);
+        }else
+        {
+            return $response->setStatusCode(400);
+        }
         }
         return $response->setStatusCode(404);
     }
