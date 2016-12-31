@@ -119,8 +119,7 @@ class Events extends Controller
             foreach($photos as $photo) {
                 $data = $photo['value'];
                 $data = base64_decode($data);
-                Storage::disk('local')->put($event->id.$photo['name'].".png",$data);
-
+                Storage::disk('s3')->put($event->id.$photo['name'].".png",$data);
                 $photoMdl->name = $photo['name'];
                 $photoMdl->eventId = $event->id;
                 $photoMdl->save();
