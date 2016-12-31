@@ -18,5 +18,5 @@ Route::get('/api/v1/events/categorys', 'Events@getCategorys');
 Route::post('/api/v1/events/categorys', 'Events@createCategorys');
 Route::get('/api/v1/events/{id?}', 'Events@index');
 Route::post('/api/v1/events', 'Events@store');
-Route::post('/api/v1/events/{id}', 'Events@update');
+Route::post('/api/v1/events/{id?}', 'Events@update');
 Route::delete('/api/v1/events/{id}', 'Events@destroy');

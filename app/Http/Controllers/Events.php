@@ -86,7 +86,15 @@ class Events extends Controller
     public function getCategory($categoryId)
     {
         $category = Category::find($categoryId);
-        return $category->name;
+        if ($category != null)
+        {
+            return $category->name;
+        }
+        else
+        {
+            return "";
+        }
+        
     }
 
     /**
@@ -186,7 +194,6 @@ class Events extends Controller
         if ($event != null)
         {
             $response = new Response();
-            $event = new Event;
             $photoMdl = new Photos;
             $event->name = $request->input('name');
             $category = $this->getCategory($request->input('categoryId'));
