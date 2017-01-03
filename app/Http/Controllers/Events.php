@@ -22,6 +22,7 @@ class Events extends Controller
      */
     public function index($id = null)
     {
+        $response = new Response();
         $category = Input::get('category');
         if($category != null)
         {
@@ -37,9 +38,8 @@ class Events extends Controller
             }else
             {
                 $event = new Event;
-                return $event;
             }
-            return $event;
+            return $response->setStatusCode(200)->setContent($event);
         } else {
             return $this->show($id);
         }
@@ -169,7 +169,7 @@ class Events extends Controller
                 $photo->value = $url;
             }
             $event->photos = $photos;
-            return $event;
+            return $response->setStatusCode(200)->setContent($event);
         }
         else
         {
