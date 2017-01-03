@@ -129,7 +129,7 @@ class Events extends Controller
             foreach($photos as $photo) {
                 $data = $photo['value'];
                 $data = base64_decode($data);
-                $s3->put($event->id.$photo['name'].".png",$data);
+                $s3->put($event->id.$photo['name'].".png",$data,'public');
                 $photoMdl->name = $photo['name'];
                 $photoMdl->eventId = $event->id;
                 $photoMdl->save();
@@ -219,7 +219,7 @@ class Events extends Controller
             foreach($photos as $photo) {
                 $data = $photo['value'];
                 $data = base64_decode($data);
-                $s3->put($event->id.$photo['name'].".png",$data);
+                $s3->put($event->id.$photo['name'].".png",$data,'public');
                 $photoMdl->name = $photo['name'];
                 $photoMdl->eventId = $event->id;
                 $photoMdl->save();
