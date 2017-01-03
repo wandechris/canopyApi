@@ -32,6 +32,10 @@ class Events extends Controller
         if ($id == null) {
             $event = Event::orderBy('id', 'asc')->get();
             $event = $this->getEventWithPhoto($event);
+            if($event == null)
+            {
+                $event = [];
+            }
             return $event;
         } else {
             return $this->show($id);

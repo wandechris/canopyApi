@@ -51,8 +51,8 @@ class Handler extends ExceptionHandler
             $data = $e->getData();
         }
 
-        // return response()->json($data, $code);
+        return response()->json($data, $code);
 
-        return parent::render($request, $e);
+        // return parent::render($request, $e);
     }
 }
