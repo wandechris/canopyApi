@@ -22,7 +22,6 @@ class Events extends Controller
      */
     public function index($id = null)
     {
-        $response = new Response();
         $category = Input::get('category');
         if($category != null)
         {
@@ -32,14 +31,8 @@ class Events extends Controller
         }
         if ($id == null) {
             $event = Event::orderBy('id', 'asc')->get();
-            if($event != null)
-            {
-                $event = $this->getEventWithPhoto($event);
-            }else
-            {
-                $event = new Event;
-            }
-            return $response->setStatusCode(200)->setContent($event);
+            $event = $this->getEventWithPhoto($event);
+            return $event;
         } else {
             return $this->show($id);
         }
@@ -169,7 +162,7 @@ class Events extends Controller
                 $photo->value = $url;
             }
             $event->photos = $photos;
-            return $response->setStatusCode(200)->setContent($event);
+            return $event;
         }
         else
         {
