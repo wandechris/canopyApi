@@ -44,8 +44,11 @@ class Events extends Controller
         {
             $photos = Photos::where('eventId', $event->id)->get();
             foreach($photos as $photo) {
-                $contents = Storage::disk('s3')->get($event->id.$photo->name.'.png');
-                $photo->value = base64_encode($contents);
+               
+                $bucket = env('S3_BUCKET');
+                $s3 = Storage::disk('s3');
+                $url =  $s3->getDriver()->getAdapter()->getClient()->getObjectUrl($bucket, $event->id.$photo->name.'.png');
+                $photo->value = $url;
             }
             $event->photos = $photos;
         }
@@ -152,8 +155,10 @@ class Events extends Controller
         {
             $photos = Photos::where('eventId', $id)->get();
             foreach($photos as $photo) {
-                $contents = Storage::disk('s3')->get($id.$photo->name.'.png');
-                $photo->value = base64_encode($contents);
+                $bucket = env('S3_BUCKET');
+                $s3 = Storage::disk('s3');
+                $url =  $s3->getDriver()->getAdapter()->getClient()->getObjectUrl($bucket, $id.$photo->name.'.png');
+                $photo->value = $url;
             }
             $event->photos = $photos;
             return $event;
