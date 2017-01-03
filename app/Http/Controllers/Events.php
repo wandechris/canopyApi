@@ -129,13 +129,13 @@ class Events extends Controller
             foreach($photos as $photo) {
                 $data = $photo['value'];
                 $data = base64_decode($data);
-                Storage::disk('s3')->put($event->id.$photo['name'].".png",$data);
+                $s3->put($event->id.$photo['name'].".png",$data);
                 $photoMdl->name = $photo['name'];
                 $photoMdl->eventId = $event->id;
                 $photoMdl->save();
 
-                $url =  $s3->getDriver()->getAdapter()->getClient()->getObjectUrl($bucket, $event->$id.$photo['name'].'.png');
-                $photo->value = $url;
+                // $url =  $s3->getDriver()->getAdapter()->getClient()->getObjectUrl($bucket, $event->$id.$photo['name'].'.png');
+                // $photo->value = $url;
             }
             $event->photos = $photos;
             return $response->setStatusCode(201)->setContent($event);
