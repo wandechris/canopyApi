@@ -134,7 +134,7 @@ class Events extends Controller
                 $photoMdl->eventId = $event->id;
                 $photoMdl->save();
 
-                $url =  $s3->getDriver()->getAdapter()->getClient()->getObjectUrl($bucket, $event->$id.$photo->name.'.png');
+                $url =  $s3->getDriver()->getAdapter()->getClient()->getObjectUrl($bucket, $event->$id.$photo['name'].'.png');
                 $photo->value = $url;
             }
             $event->photos = $photos;
