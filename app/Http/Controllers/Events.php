@@ -31,10 +31,13 @@ class Events extends Controller
         }
         if ($id == null) {
             $event = Event::orderBy('id', 'asc')->get();
-            $event = $this->getEventWithPhoto($event);
-            if($event == null)
+            if($event != null)
             {
-                $event = [];
+                $event = $this->getEventWithPhoto($event);
+            }else
+            {
+                $event = new Event;
+                return $event;
             }
             return $event;
         } else {
