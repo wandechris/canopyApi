@@ -44,7 +44,7 @@ class Events extends Controller
         {
             $photos = Photos::where('eventId', $event->id)->get();
             foreach($photos as $photo) {
-                $contents = Storage::url('s3')->get($event->id.$photo->name.'.png');
+                $contents = Storage::disk('s3')->get($event->id.$photo->name.'.png');
                 $photo->value = base64_encode($contents);
             }
             $event->photos = $photos;
