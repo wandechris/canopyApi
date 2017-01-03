@@ -108,6 +108,9 @@ class Events extends Controller
         $event = new Event;
         $photoMdl = new Photos;
 
+        $bucket = env('S3_BUCKET');
+        $s3 = Storage::disk('s3');
+
         if($request->has('name'))
         {
             $event->name = $request->input('name');
@@ -131,8 +134,10 @@ class Events extends Controller
                 $photoMdl->eventId = $event->id;
                 $photoMdl->save();
 
-                $event->photos = $photos;
+                $url =  $s3->getDriver()->getAdapter()->getClient()->getObjectUrl($bucket, $event->$id.$photo->name.'.png');
+                $photo->value = $url;
             }
+            $event->photos = $photos;
             return $response->setStatusCode(201)->setContent($event);
         }else
         {
@@ -189,6 +194,9 @@ class Events extends Controller
      */
     public function update(Request $request, $id)
     {
+
+        $bucket = env('S3_BUCKET');
+        $s3 = Storage::disk('s3');
         $response = new Response();
 
         $event = Event::find($id);
@@ -215,12 +223,15 @@ class Events extends Controller
             foreach($photos as $photo) {
                 $data = $photo['value'];
                 $data = base64_decode($data);
-                Storage::disk('s3')->put($event->id.$photo['name'].".png",$data);
+                $s3->put($event->id.$photo['name'].".png",$data);
                 $photoMdl->name = $photo['name'];
                 $photoMdl->eventId = $event->id;
                 $photoMdl->save();
-                $event->photos = $photos;
+                $url =  $s3->getDriver()->getAdapter()->getClient()->getObjectUrl($bucket, $id.$photo->name.'.png');
+                $photo->value = $url;
             }
+             $event->photos = $photos;
+            
             return $response->setStatusCode(200)->setContent($event);
         }
         return $response->setStatusCode(404);
