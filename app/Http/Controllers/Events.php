@@ -133,11 +133,7 @@ class Events extends Controller
                 $photoMdl->name = $photo['name'];
                 $photoMdl->eventId = $event->id;
                 $photoMdl->save();
-
-                $url =  $s3->getDriver()->getAdapter()->getClient()->getObjectUrl($bucket, $event->id.$photo['name'].".png");
-                $photo->value = $url;
             }
-            $event->photos = $photos;
             return $response->setStatusCode(201)->setContent($event);
         }else
         {
@@ -227,10 +223,7 @@ class Events extends Controller
                 $photoMdl->name = $photo['name'];
                 $photoMdl->eventId = $event->id;
                 $photoMdl->save();
-                $url =  $s3->getDriver()->getAdapter()->getClient()->getObjectUrl($bucket, $id.$photo->name.'.png');
-                $photo->value = $url;
             }
-             $event->photos = $photos;
             
             return $response->setStatusCode(200)->setContent($event);
         }
